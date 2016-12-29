@@ -18,3 +18,22 @@ On a Mac, this can get and process a frame four times per
 second. (Less than 10% of that time is user time -- seems to be mostly
 waiting on frames from the Kinect.) The heap size is a pretty constant
 90MB.
+
+On the Jetson TX1, this can get and process just under a frame per
+second. Oddly, on the Jetson, the libfreenect color images come in as
+RGBX (BGRX is the standard for OpenCV and what appears on the mac).
+The Jetson also has some rules that you need to add to /etc/udev/ so
+that the program has access to the device.  And there is a firmware
+update that makes the USB 3 port (always use USB 3 with the Kinect!)
+works properly. That patch is here:
+https://devtalk.nvidia.com/default/topic/919354/jetson-tx1/usb-3-transfer-failures/post/4899105/#4899105
+
+I also installed OpenCV 3.2 on the Jetson so that the iwrite function
+was in the imgcodecs library.
+
+Finally, all the dynamic libraries for libfreenect and libopencv get
+installed in /usr/local/lib, so you will need to set your dynamic
+linker search path:
+
+	 export LD_LIBRARY_PATH=/usr/local/lib
+

@@ -6,8 +6,8 @@
 //  Copyright © 2016 Big Nerd Ranch. All rights reserved.
 //
 
-#import "findHue.h"
-#import <stdlib.h>
+#include "findHue.h"
+#include <stdlib.h>
 #include <opencv2/imgproc.hpp>
 
 #define CLOSE_ENOUGH (4)

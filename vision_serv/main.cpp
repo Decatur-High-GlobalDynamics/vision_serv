@@ -12,11 +12,11 @@
 #include <libfreenect2/registration.h>
 #include <libfreenect2/packet_pipeline.h>
 #include <libfreenect2/logger.h>
-#import <opencv2/imgproc.hpp>
-#import <opencv2/imgcodecs.hpp>
-#import "findHue.h"
+#include <opencv2/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include "findHue.h"
 
-#define PIC_COUNT (1000)
+#define PIC_COUNT (5)
 #define IMG_WIDTH (1920)
 #define IMG_HEIGHT (1080)
 #define HUE_UPPER_BOUND (47)
@@ -103,12 +103,15 @@ int main(int argc, const char * argv[]) {
         std::cout << "Device failed to start" << std::endl;
         return -1;
     }
+    std::cout << "Device started" << std::endl;
+
     for (int counter = 0; counter < PIC_COUNT; counter++) { // It takes a few rounds before exposure is right
         if (!listener.waitForNewFrame(frames, 10*1000)) // 10 seconds
         {
             std::cout << "Timed out waiting for frames" << std::endl;
             return -1;
         }
+	std::cout << "Got a frame" << std::endl;
 
         libfreenect2::Frame *color = frames[libfreenect2::Frame::Color];
         std::cout << "Color: ";
@@ -120,7 +123,14 @@ int main(int argc, const char * argv[]) {
         
         // Matrix for HSV image
         Mat hsvMatrix;
-        cvtColor(colorMat, hsvMatrix, COLOR_BGR2HSV);
+
+	// Oddly, the Jetson fetches RGBX images, Mac gets BGRX
+	if (color->format == libfreenect2::Frame::RGBX) {
+	  cvtColor(colorMat, hsvMatrix, COLOR_RGB2HSV);
+	} else {
+	  cvtColor(colorMat, hsvMatrix, COLOR_BGR2HSV);
+	}
+
         
         // Matrix for hue mask
         cv::Mat hotness = findHue(HUE_LOWER_BOUND, HUE_UPPER_BOUND, hsvMatrix);
